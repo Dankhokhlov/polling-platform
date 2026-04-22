@@ -45,9 +45,9 @@ export async function createPoll(
 
 export async function getPoll(id: string): Promise<Poll | null> {
   const redis = getRedis();
-  const data = await redis.get<string>(pollKey(id));
+  const data = await redis.get(pollKey(id));
   if (!data) return null;
-  return typeof data === "string" ? JSON.parse(data) : data;
+  return JSON.parse(data);
 }
 
 export async function getAllPolls(): Promise<Poll[]> {
@@ -57,7 +57,7 @@ export async function getAllPolls(): Promise<Poll[]> {
 
   const polls: Poll[] = [];
   for (const id of ids) {
-    const poll = await getPoll(id as string);
+    const poll = await getPoll(id);
     if (poll) polls.push(poll);
   }
 
