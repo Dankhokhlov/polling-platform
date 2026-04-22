@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Poll } from "@/lib/polls";
 
 const COLORS = [
@@ -15,9 +16,11 @@ const COLORS = [
 ];
 
 export default function PollResults({ pollId }: { pollId: string }) {
+  const router = useRouter();
   const [poll, setPoll] = useState<Poll | null>(null);
   const [voted, setVoted] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const fetchPoll = useCallback(async () => {
     const res = await fetch(`/api/polls/${pollId}`);
@@ -84,6 +87,38 @@ export default function PollResults({ pollId }: { pollId: string }) {
           </span>
         )}
       </p>
+
+      <div className="flex justify-end mb-4">
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="text-sm text-gray-400 hover:text-red-500 transition-colors"
+          >
+            Delete poll
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Are you sure?</span>
+            <button
+              onClick={async () => {
+                const res = await fetch(`/api/polls/${pollId}`, {
+                  method: "DELETE",
+                });
+                if (res.ok) router.push("/");
+              }}
+              className="text-sm px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Yes, delete
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="text-sm px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-4">
         {poll.options.map((option, i) => {

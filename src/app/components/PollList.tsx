@@ -37,10 +37,18 @@ export default function PollList() {
     );
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this poll?")) return;
+    const res = await fetch(`/api/polls/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setPolls(polls.filter((p) => p.id !== id));
+    }
+  }
+
   return (
     <div className="grid gap-4">
       {polls.map((poll) => (
-        <PollCard key={poll.id} poll={poll} />
+        <PollCard key={poll.id} poll={poll} onDelete={handleDelete} />
       ))}
     </div>
   );

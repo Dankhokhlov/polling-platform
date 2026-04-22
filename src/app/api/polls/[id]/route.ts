@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getPoll } from "@/lib/polls";
+import { getPoll, deletePoll } from "@/lib/polls";
 
 export async function GET(
   _request: Request,
@@ -13,4 +13,18 @@ export async function GET(
   }
 
   return NextResponse.json(poll);
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const deleted = await deletePoll(id);
+
+  if (!deleted) {
+    return NextResponse.json({ error: "Poll not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ success: true });
 }

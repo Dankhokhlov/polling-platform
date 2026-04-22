@@ -81,3 +81,13 @@ export async function vote(
   await redis.set(pollKey(pollId), JSON.stringify(poll));
   return poll;
 }
+
+export async function deletePoll(pollId: string): Promise<boolean> {
+  const redis = getRedis();
+  const exists = await redis.exists(pollKey(pollId));
+  if (!exists) return false;
+
+  await redis.del(pollKey(pollId));
+  await redis.lrem(POLLS_LIST_KEY, 0, pollId);
+  return true;
+}
